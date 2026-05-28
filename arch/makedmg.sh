@@ -3,17 +3,18 @@
 VERSION=$(cat Version)
 applicationName="CheeseCutter.app"
 backgroundPictureName="background.png"
-source="dist"
+source="build/dmg_temp"
 title="CheeseCutter ${VERSION}"
 size=20000
-finalDMGName="CheeseCutter_${VERSION}.dmg"
+finalDMGName="dist/CheeseCutter_${VERSION}.dmg"
 
-mkdir "${source}"
-cp -r "${applicationName}" "${source}"
+rm -rf "${source}"
+mkdir -p "${source}"
+cp -r "dist/${applicationName}" "${source}/"
 
 hdiutil create -srcfolder "${source}" -volname "${title}" -fs HFS+ \
-      -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${size}k pack.temp.dmg
-device=$(hdiutil attach -readwrite -noverify -noautoopen "pack.temp.dmg" | \
+      -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${size}k build/pack.temp.dmg
+device=$(hdiutil attach -readwrite -noverify -noautoopen "build/pack.temp.dmg" | \
          egrep '^/dev/' | sed 1q | awk '{print $1}')
 sleep 5
 mkdir /Volumes/"${title}"/.background
@@ -52,5 +53,6 @@ chmod -Rf go-w /Volumes/"${title}"
 sync
 sync
 hdiutil detach ${device}
-hdiutil convert pack.temp.dmg -format UDZO -imagekey zlib-level=9 -o ${finalDMGName}
-rm pack.temp.dmg
+hdiutil convert build/pack.temp.dmg -format UDZO -imagekey zlib-level=9 -o ${finalDMGName}
+rm build/pack.temp.dmg
+rm -rf "${source}"

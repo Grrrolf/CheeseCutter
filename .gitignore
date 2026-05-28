@@ -1,0 +1,10 @@
+# Build and distribution directories
+/build/
+/dist/
+
+# Standalone files and editor backups
+*.o
+*.temp.dmg
+*~
+src/*~
+src/*/*~

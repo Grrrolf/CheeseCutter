@@ -36,72 +36,87 @@ TARGET=ccutter
 
 include Makefile.objects.mk
 
-$(TARGET): $(C64OBJS) $(OBJS) $(CXX_OBJS)
-	$(CC) $(DLINK) -Wl,$(LDFLAGS) -o $(TARGET) $(OBJS) $(CXX_OBJS) $(LIBS) $(FRAMEWORKS)
+BUILD_DIR = build
+DIST_DIR = dist
 
-.cpp.o : $(CXX_SRCS)
+BUILD_OBJS = $(addprefix $(BUILD_DIR)/, $(OBJS))
+BUILD_CXX_OBJS = $(addprefix $(BUILD_DIR)/, $(CXX_OBJS))
+BUILD_C_OBJS = $(addprefix $(BUILD_DIR)/, $(C_OBJS))
+BUILD_UTILOBJS = $(addprefix $(BUILD_DIR)/, $(UTILOBJS))
+
+.PHONY: install release dist clean dclean tar ccutter ct2util
+
+$(BUILD_DIR)/%.o: %.d
+	@mkdir -p $(dir $@)
+	$(COMPILE.d) $<
+
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-.c.o : $(C_SRCS)
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
 	$(CC) -c $< -o $@
+
+$(DIST_DIR)/$(TARGET): $(C64OBJS) $(BUILD_OBJS) $(BUILD_CXX_OBJS)
+	@mkdir -p $(DIST_DIR)
+	$(CC) $(DLINK) -Wl,$(LDFLAGS) -o $@ $(BUILD_OBJS) $(BUILD_CXX_OBJS) $(LIBS) $(FRAMEWORKS)
 
 ct: $(C64OBJS) $(CTOBJS)
 
-ct2util: $(C64OBJS) $(UTILOBJS)
-	$(CC) $(DLINK) -Wl,$(LDFLAGS) -o $@ $(UTILOBJS) $(LIBS)
+$(DIST_DIR)/ct2util: $(C64OBJS) $(BUILD_UTILOBJS)
+	@mkdir -p $(DIST_DIR)
+	$(CC) $(DLINK) -Wl,$(LDFLAGS) -o $@ $(BUILD_UTILOBJS) $(LIBS)
 
 c64: $(C64OBJS)
 
-all: c64 $(OBJS) $(CXX_OBJS) ct2util ct $(TARGET)
+all: c64 $(BUILD_OBJS) $(BUILD_CXX_OBJS) $(DIST_DIR)/ct2util ct $(DIST_DIR)/$(TARGET)
+
+ccutter: $(DIST_DIR)/$(TARGET)
+ct2util: $(DIST_DIR)/ct2util
 
 release: all
-	strip ccutter$(EXE)
-	strip ct2util$(EXE)
+	strip $(DIST_DIR)/ccutter$(EXE)
+	strip $(DIST_DIR)/ct2util$(EXE)
 
-	rm -rf CheeseCutter.app
-	mkdir -p CheeseCutter.app/Contents/Frameworks
-	mkdir -p CheeseCutter.app/Contents/MacOS
-	cp -r arch/MacOS/Contents CheeseCutter.app
-	cp $(SDL_LIB) CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
-	cp $(TARGET) CheeseCutter.app/Contents/MacOS
-	cp ct2util CheeseCutter.app/Contents/MacOS
-	install_name_tool -id @rpath/libSDL2-2.0.0.dylib CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
-	for bin in CheeseCutter.app/Contents/MacOS/ccutter CheeseCutter.app/Contents/MacOS/ct2util; do \
+	rm -rf $(DIST_DIR)/CheeseCutter.app
+	mkdir -p $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks
+	mkdir -p $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
+	cp -r arch/MacOS/Contents $(DIST_DIR)/CheeseCutter.app
+	cp $(SDL_LIB) $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	cp $(DIST_DIR)/$(TARGET) $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
+	cp $(DIST_DIR)/ct2util $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
+	install_name_tool -id @rpath/libSDL2-2.0.0.dylib $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	for bin in $(DIST_DIR)/CheeseCutter.app/Contents/MacOS/ccutter $(DIST_DIR)/CheeseCutter.app/Contents/MacOS/ct2util; do \
 		REAL_SDL_PATH=$$(otool -L $$bin | grep -o '/.*libSDL2-2.0.0.dylib' | head -n 1); \
 		if [ ! -z "$$REAL_SDL_PATH" ]; then \
 			install_name_tool -change "$$REAL_SDL_PATH" @rpath/libSDL2-2.0.0.dylib $$bin; \
 		fi; \
 		codesign --force --sign - $$bin; \
 	done
-	codesign --force --sign - CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	codesign --force --sign - $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
 
 dist:	release
-	rm -rf dist
-	rm -rf CheeseCutter_$(VERSION).dmg
+	rm -rf $(DIST_DIR)/CheeseCutter_$(VERSION).dmg
 	arch/makedmg.sh
 
 clean: 
-	rm -f *.o *~ resid/*.o resid-fp/*.o ccutter ct2util \
-		$(C64OBJS) $(OBJS) $(CTOBJS) $(CXX_OBJS) $(UTILOBJS)
+	rm -rf $(BUILD_DIR)
+	rm -f *~ src/*~ src/*/*~
 
 dclean: clean
-	rm -rf dist
-	rm -rf CheeseCutter.app
-	rm -rf CheeseCutter_$(VERSION).dmg
-
+	rm -rf $(DIST_DIR)
 
 tar:
-	git archive master --prefix=cheesecutter-$(VERSION)/ | bzip2 > cheesecutter-$(VERSION)-macosx-src.tar.bz2
+	@mkdir -p $(DIST_DIR)
+	git archive master --prefix=cheesecutter-$(VERSION)/ | bzip2 > $(DIST_DIR)/cheesecutter-$(VERSION)-macosx-src.tar.bz2
 # --------------------------------------------------------------------------------
 
 src/c64/player.bin: src/c64/player_v4.acme
 	acme -f cbm --outfile $@ $<
 
-src/ct/base.o: src/c64/player.bin
-src/ui/ui.o: src/ui/help.o
-
-%.o: %.d
-	$(COMPILE.d) $<
+$(BUILD_DIR)/src/ct/base.o: src/c64/player.bin
+$(BUILD_DIR)/src/ui/ui.o: $(BUILD_DIR)/src/ui/help.o
 
 
 

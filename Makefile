@@ -17,61 +17,86 @@ TARGET=ccutter
 
 include Makefile.objects.mk
 
-.PHONY: install release dist clean dclean tar
+BUILD_DIR = build
+DIST_DIR = dist
 
-%.o: %.d
+BUILD_OBJS = $(addprefix $(BUILD_DIR)/, $(OBJS))
+BUILD_CXX_OBJS = $(addprefix $(BUILD_DIR)/, $(CXX_OBJS))
+BUILD_C_OBJS = $(addprefix $(BUILD_DIR)/, $(C_OBJS))
+BUILD_UTILOBJS = $(addprefix $(BUILD_DIR)/, $(UTILOBJS))
+
+DIST_FILES = \
+	./ChangeLog \
+	./LICENSE.md \
+	./README.md \
+	$(DIST_DIR)/ccutter \
+	$(DIST_DIR)/ct2util \
+	./tunes/*
+
+.PHONY: install release dist clean dclean tar ccutter ct2util
+
+$(BUILD_DIR)/%.o: %.d
+	@mkdir -p $(dir $@)
 	$(DC) $(DFLAGS) -c -of=$@ $<
 
-%.o: %.c
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-%.o: %.cpp
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-all: ct2util ccutter
+all: $(DIST_DIR)/ct2util $(DIST_DIR)/ccutter
 
-ccutter: $(C64OBJS) $(OBJS) $(CXX_OBJS)
-	$(DC) -of=$@ $(OBJS) $(CXX_OBJS) $(DLIBS)
+ccutter: $(DIST_DIR)/ccutter
+ct2util: $(DIST_DIR)/ct2util
+
+$(DIST_DIR)/ccutter: $(C64OBJS) $(BUILD_OBJS) $(BUILD_CXX_OBJS)
+	@mkdir -p $(DIST_DIR)
+	$(DC) -of=$@ $(BUILD_OBJS) $(BUILD_CXX_OBJS) $(DLIBS)
 
 ct: $(C64OBJS) $(CTOBJS)
 
-ct2util: $(C64OBJS) $(UTILOBJS)
-	$(DC) -of=$@ $(UTILOBJS)
+$(DIST_DIR)/ct2util: $(C64OBJS) $(BUILD_UTILOBJS)
+	@mkdir -p $(DIST_DIR)
+	$(DC) -of=$@ $(BUILD_UTILOBJS)
 
 c64: $(C64OBJS)
 
 install: all
-	strip ccutter
-	strip ct2util
-	install -D -m 755 ccutter $(DESTDIR)$(PREFIX)/bin/ccutter
-	install -D -m 755 ct2util $(DESTDIR)$(PREFIX)/bin/ct2util
+	strip $(DIST_DIR)/ccutter
+	strip $(DIST_DIR)/ct2util
+	install -D -m 755 $(DIST_DIR)/ccutter $(DESTDIR)$(PREFIX)/bin/ccutter
+	install -D -m 755 $(DIST_DIR)/ct2util $(DESTDIR)$(PREFIX)/bin/ct2util
 	install -d $(DESTDIR)$(EXAMPLESDIR)/example_tunes
 	cp -r tunes/* $(DESTDIR)$(EXAMPLESDIR)/example_tunes/
 
 # release version with additional optimizations
 release: DFLAGS += -frelease -fno-bounds-check
 release: all
-	strip ccutter
-	strip ct2util
+	strip $(DIST_DIR)/ccutter
+	strip $(DIST_DIR)/ct2util
 
 # tarred release
 dist:	release
-	tar --transform 's,^\.,cheesecutter-$(VERSION),' -czf cheesecutter-$(VERSION)-linux-x86.tar.gz $(DIST_FILES)
+	tar --transform 's,^\.,cheesecutter-$(VERSION),' -czf $(DIST_DIR)/cheesecutter-$(VERSION)-linux-x86.tar.gz $(DIST_FILES)
 
 clean: 
-	rm -f *.o *~ resid/*.o resid-fp/*.o ccutter ct2util \
-		$(C64OBJS) $(OBJS) $(CTOBJS) $(CXX_OBJS) $(UTILOBJS) $(C_OBJS)
+	rm -rf $(BUILD_DIR)
+	rm -f *~ src/*~ src/*/*~
 
 dclean: clean
-	rm -f cheesecutter-$(VERSION)-linux-x86.tar.gz
+	rm -rf $(DIST_DIR)
 
 # tarred source from master
 tar:
-	git archive master --prefix=cheesecutter-$(VERSION)/ | bzip2 > cheesecutter-$(VERSION)-src.tar.bz2
+	@mkdir -p $(DIST_DIR)
+	git archive master --prefix=cheesecutter-$(VERSION)/ | bzip2 > $(DIST_DIR)/cheesecutter-$(VERSION)-src.tar.bz2
 # --------------------------------------------------------------------------------
 
 src/c64/player.bin: src/c64/player_v4.acme
 	acme -f cbm -Wno-old-for --outfile $@ $<
 
-src/ct/base.o: src/c64/player.bin
-src/ui/ui.o: src/ui/help.o
+$(BUILD_DIR)/src/ct/base.o: src/c64/player.bin
+$(BUILD_DIR)/src/ui/ui.o: $(BUILD_DIR)/src/ui/help.o
