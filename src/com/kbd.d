@@ -31,7 +31,21 @@ void translate_super(ref Keyinfo key) {
         case SDLK_9: key.key = SDLK_KP_9; break;
 		case SDLK_UP: key.mods = KMOD_SHIFT; key.key = SDLK_HOME; break;
 		case SDLK_DOWN: key.mods = KMOD_SHIFT; key.key = SDLK_END; break;
-        default: // otherwise just translate to ctrl+shift...                                                                       
+		case SDLK_F1:
+		case SDLK_F2:
+		case SDLK_F3:
+		case SDLK_F4:
+		case SDLK_F5:
+		case SDLK_F6:
+		case SDLK_F7:
+		case SDLK_F8:
+		case SDLK_F9:
+		case SDLK_F10:
+		case SDLK_F11:
+		case SDLK_F12:
+			key.mods |= KMOD_CTRL;
+			break;
+        default: // otherwise just translate to ctrl+shift...
             key.mods |= KMOD_CTRL | KMOD_SHIFT;
             break;
         }
