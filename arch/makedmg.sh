@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="2.6"
+VERSION=$(cat Version)
 applicationName="CheeseCutter.app"
 backgroundPictureName="background.png"
 source="dist"
@@ -18,7 +18,7 @@ device=$(hdiutil attach -readwrite -noverify -noautoopen "pack.temp.dmg" | \
 sleep 5
 mkdir /Volumes/"${title}"/.background
 cp arch/background.png /Volumes/"${title}"/.background
-cp -r tunes README COPYING Changelog /Volumes/"${title}"/
+cp -r tunes README.md LICENSE.md ChangeLog /Volumes/"${title}"/
 
 pushd /Volumes/"${title}"
 ln -s /Applications

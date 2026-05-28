@@ -1,8 +1,28 @@
 #LIBS=/opt/ldc/build/lib/libphobos-ldc.a /opt/ldc/build/lib/libdruntime-ldc.a -lstdc++
 #LIBS=/opt/ldc2/lib/libphobos-ldc.a /opt/ldc2/lib/libdruntime-ldc.a -lstdc++
+ifneq ($(wildcard /opt/homebrew/lib/libphobos2-ldc.a),)
+LIBS=/opt/homebrew/lib/libphobos2-ldc.a /opt/homebrew/lib/libdruntime-ldc.a -lstdc++ -lsdl2
+else ifneq ($(wildcard /opt/local/lib/libphobos2-ldc.a),)
+LIBS=/opt/local/lib/libphobos2-ldc.a /opt/local/lib/libdruntime-ldc.a -lstdc++ -lsdl2
+else
 LIBS=/usr/local/lib/libphobos2-ldc.a /usr/local/lib/libdruntime-ldc.a -lstdc++ -lsdl2
+endif
+
+ifneq ($(wildcard /opt/homebrew/lib/libSDL2-2.0.0.dylib),)
+SDL_LIB=/opt/homebrew/lib/libSDL2-2.0.0.dylib
+else ifneq ($(wildcard /opt/local/lib/libSDL2-2.0.0.dylib),)
+SDL_LIB=/opt/local/lib/libSDL2-2.0.0.dylib
+else
+SDL_LIB=/usr/local/lib/libSDL2-2.0.0.dylib
+endif
 FRAMEWORKS=-framework Foundation
 COMFLAGS= -mmacosx-version-min=11.0 -g 
+ifneq ($(wildcard /opt/homebrew/lib),)
+COMFLAGS += -L/opt/homebrew/lib -I/opt/homebrew/include
+endif
+ifneq ($(wildcard /opt/local/lib),)
+COMFLAGS += -L/opt/local/lib -I/opt/local/include
+endif
 VERSION=$(shell cat Version)
 DLINK=$(COMFLAGS)
 DFLAGS=-d-version=DerelictSDL2_Static -I./src -J./src/c64 -J./src/font
@@ -28,7 +48,7 @@ $(TARGET): $(C64OBJS) $(OBJS) $(CXX_OBJS)
 ct: $(C64OBJS) $(CTOBJS)
 
 ct2util: $(C64OBJS) $(UTILOBJS)
-	$(CC) $(DLINK) -o $@ $(UTILOBJS) $(LIBS)
+	$(CC) $(DLINK) -Wl,$(LDFLAGS) -o $@ $(UTILOBJS) $(LIBS)
 
 c64: $(C64OBJS)
 
@@ -42,9 +62,18 @@ release: all
 	mkdir -p CheeseCutter.app/Contents/Frameworks
 	mkdir -p CheeseCutter.app/Contents/MacOS
 	cp -r arch/MacOS/Contents CheeseCutter.app
-	cp -r /Library/Frameworks/SDL.framework CheeseCutter.app/Contents/Frameworks
+	cp $(SDL_LIB) CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
 	cp $(TARGET) CheeseCutter.app/Contents/MacOS
 	cp ct2util CheeseCutter.app/Contents/MacOS
+	install_name_tool -id @rpath/libSDL2-2.0.0.dylib CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	for bin in CheeseCutter.app/Contents/MacOS/ccutter CheeseCutter.app/Contents/MacOS/ct2util; do \
+		REAL_SDL_PATH=$$(otool -L $$bin | grep -o '/.*libSDL2-2.0.0.dylib' | head -n 1); \
+		if [ ! -z "$$REAL_SDL_PATH" ]; then \
+			install_name_tool -change "$$REAL_SDL_PATH" @rpath/libSDL2-2.0.0.dylib $$bin; \
+		fi; \
+		codesign --force --sign - $$bin; \
+	done
+	codesign --force --sign - CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
 
 dist:	release
 	rm -rf dist

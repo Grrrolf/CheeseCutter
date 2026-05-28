@@ -2,7 +2,12 @@ PREFIX ?= /usr/local
 DESTDIR ?=
 EXAMPLESDIR ?= $(PREFIX)/share/examples/ccutter
 VERSION := $(shell cat Version 2>/dev/null || echo "unknown")
+UNAME_S := $(shell uname)
+ifeq ($(UNAME_S),Darwin)
+DLIBS=-L-ldl -L-lstdc++ -L-lSDL2 -L-L/opt/homebrew/lib -L-L/usr/local/lib
+else
 DLIBS=-L-ldl -L-lstdc++ -L-lSDL2
+endif
 DFLAGS=-d-version=DerelictSDL2_Static -I./src -J./src/c64 -J./src/font
 CFLAGS=-O2 -std=c99
 CXXFLAGS=-O2 -I./src
