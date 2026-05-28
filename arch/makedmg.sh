@@ -11,19 +11,18 @@ finalDMGName="dist/CheeseCutter_${VERSION}.dmg"
 rm -rf "${source}"
 mkdir -p "${source}"
 cp -r "dist/${applicationName}" "${source}/"
+cp -r tunes README.md LICENSE.md ChangeLog "${source}/"
+mkdir -p "${source}/.background"
+cp arch/background.png "${source}/.background/"
+ln -s /Applications "${source}/Applications"
+chflags hidden "${source}/README.md" "${source}/LICENSE.md" "${source}/ChangeLog"
+chmod -R go-w "${source}"
 
 hdiutil create -srcfolder "${source}" -volname "${title}" -fs HFS+ \
       -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${size}k build/pack.temp.dmg
 device=$(hdiutil attach -readwrite -noverify -noautoopen "build/pack.temp.dmg" | \
          egrep '^/dev/' | sed 1q | awk '{print $1}')
 sleep 5
-mkdir /Volumes/"${title}"/.background
-cp arch/background.png /Volumes/"${title}"/.background
-cp -r tunes README.md LICENSE.md ChangeLog /Volumes/"${title}"/
-
-pushd /Volumes/"${title}"
-ln -s /Applications
-popd
 
 echo '
    tell application "Finder"
@@ -32,14 +31,15 @@ echo '
            set current view of container window to icon view
            set toolbar visible of container window to false
            set statusbar visible of container window to false
-           set the bounds of container window to {400, 100, 885, 430}
+           set the bounds of container window to {400, 100, 1052, 430}
            set theViewOptions to the icon view options of container window
            set arrangement of theViewOptions to not arranged
            set icon size of theViewOptions to 72
            set background picture of theViewOptions to file ".background:'${backgroundPictureName}'"
            delay 1
-	         set position of item "'${applicationName}'" of container window to {100, 100}
-           set position of item "Applications" of container window to {375, 100}
+	         set position of item "'${applicationName}'" of container window to {140, 240}
+           set position of item "tunes" of container window to {326, 240}
+           set position of item "Applications" of container window to {512, 240}
            update without registering applications
            close
            open
@@ -49,10 +49,9 @@ echo '
    end tell
 ' | osascript
 
-chmod -Rf go-w /Volumes/"${title}"
 sync
 sync
-hdiutil detach ${device}
+hdiutil detach ${device} 2>/dev/null || true
 hdiutil convert build/pack.temp.dmg -format UDZO -imagekey zlib-level=9 -o ${finalDMGName}
 rm build/pack.temp.dmg
 rm -rf "${source}"
