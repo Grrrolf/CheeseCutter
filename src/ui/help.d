@@ -37,9 +37,9 @@ Ctrl-Keypad - +.........Decrease/increase default song speed
 [ ] (AltGr-8 / AltGr-9).Decrease/increase default song speed
 Alt-Keypad - +..........Decrease/increase multispeed framecall counter 
 { } (AltGr-7 / AltGr-0).Decrease/increase multispeed framecall counter
-Ctrl-F3.................Toggle SID type (6581/8580)
-Ctrl-F8.................Select next SID filter preset
-Ctrl-Shift-F8...........Select previous SID filter preset
+Ctrl-F3 (Opt-F3 Mac)....Toggle SID type (6581/8580)
+Ctrl-F8 (Opt-F8 Mac)....Select next SID filter preset
+Ctrl-Shift-F8 (Opt-Shift-F8 Mac).Select previous SID filter preset
 Alt-T...................Edit title / author / release info
 Ctrl-Alt-C..............Clear sequences (press TWICE to activate)
 Ctrl-Alt-O..............Optimize (clear unused sequences & data)
