@@ -50,6 +50,7 @@ class Video {
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
+    SDL_PixelFormat* pixelFormat;
     uint[] framebuffer;
 		bool useFullscreen;
 		Screen screen;
@@ -74,6 +75,9 @@ class Video {
 
     // if(texture !is null)
     //   SDL_DestroyTexture
+
+    if(pixelFormat !is null)
+      SDL_FreeFormat(pixelFormat);
 
     if(window !is null)
       SDL_DestroyWindow(window);
@@ -110,6 +114,9 @@ class Video {
 
     SDL_SetRenderTarget(renderer, null);
 
+    auto formatEnum = SDL_GetWindowPixelFormat(window);
+    pixelFormat = SDL_AllocFormat(formatEnum);
+
     calcAspect();
     screen.refresh();
 
@@ -138,7 +145,6 @@ class Video {
 	}
 
   void updateFrame() {
-    auto surface = SDL_GetWindowSurface(window);
 		int x, y;
 		int a,b,c;
 		ushort* bptr = &screen.data[0];
@@ -160,8 +166,8 @@ class Video {
 					bp = &font[a * 16];
 					ufg = (*bptr >> 8) & 15;
 					ubg = (*bptr >> 12);
-					auto fgcolor = getColor(surface, ufg),
-						bgcolor = getColor(surface, ubg);
+					auto fgcolor = getColor(pixelFormat, ufg),
+						bgcolor = getColor(pixelFormat, ubg);
 					for(c = 4; c < 18; c++, bp++) {
 						b = *bp;
 						if(b & 0x80) *(sp++) = fgcolor;
@@ -446,6 +452,12 @@ Uint16 readkey() {
 	return cast(Uint16)evt.key.keysym.unicode;
 }
 
+auto getColor(SDL_PixelFormat* f, int c) {
+  if (f is null) return 0;
+  return SDL_MapRGBA(f, PALETTE[c].r, PALETTE[c].g, PALETTE[c].b, 255);
+}
+
 auto getColor(SDL_Surface* s, int c) {
+  if (s is null) return 0;
   return SDL_MapRGBA(s.format, PALETTE[c].r, PALETTE[c].g, PALETTE[c].b, 255);
 }
