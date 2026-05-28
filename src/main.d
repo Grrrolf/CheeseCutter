@@ -172,12 +172,15 @@ int main(char[][] args) {
 	version(OSX) {
 		import std.process : environment;
 		import std.file : exists, isDir, chdir, getcwd;
+		import std.string : startsWith;
 		try {
-			if (getcwd() == "/") {
-				string home = environment.get("HOME", "");
-				if (home.length > 0 && exists(home) && isDir(home)) {
-					chdir(home);
-				}
+			string home = environment.get("HOME", "");
+			string cwd = getcwd();
+			// Redirect to home dir when launched from Finder/bundle (CWD is "/" or
+			// inside the .app bundle or any path not under the user's home directory)
+			if (home.length > 0 && exists(home) && isDir(home) &&
+				!cwd.startsWith(home)) {
+				chdir(home);
 			}
 		} catch (Exception e) {
 			// Fail-safe fallback to prevent startup crash if HOME is inaccessible

@@ -5,7 +5,7 @@ applicationName="CheeseCutter.app"
 backgroundPictureName="background.png"
 source="build/dmg_temp"
 title="CheeseCutter ${VERSION}"
-size=20000
+size=35000
 finalDMGName="dist/CheeseCutter_${VERSION}.dmg"
 
 rm -rf "${source}"
@@ -25,6 +25,8 @@ sleep 5
 mkdir -p /Volumes/"${title}"/.background
 cp arch/background.png /Volumes/"${title}"/.background/
 cp -r tunes /Volumes/"${title}"/
+cp dist/ct2util /Volumes/"${title}"/tunes/
+codesign --force --sign - /Volumes/"${title}"/tunes/ct2util
 cp README.md LICENSE.md ChangeLog /Volumes/"${title}"/
 ln -s /Applications /Volumes/"${title}"/Applications
 chflags hidden /Volumes/"${title}"/README.md /Volumes/"${title}"/LICENSE.md /Volumes/"${title}"/ChangeLog
