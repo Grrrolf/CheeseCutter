@@ -289,6 +289,11 @@ class FileSelector : Window {
 	}
 
 	override void refresh() {
+		// Ensure we use the latest directory from getcwd() if directory is not set
+		if (directory == "" || directory == "/") {
+			auto cwd = getcwd();
+			if (cwd != "/") directory = cwd;
+		}
 		if(!exists(directory)) {
 			UI.statusline.display("Directory not found!");
 		}
@@ -534,7 +539,7 @@ class FileSelectorDialog : WindowSwitcher {
 								a.width - 18));
 		sfile = new DialogString(Rectangle(a.x+3+11, a.y+a.height-2), 50);
 		sdir = new DialogString(Rectangle(a.x+3+11, a.y+a.height-3), 50);
-		sdir.setString(getcwd());
+
 		super(a, [cast(Window)fsel, sdir, sfile]);
 		activateWindow(0);
 		callback = cb;
@@ -570,8 +575,8 @@ class FileSelectorDialog : WindowSwitcher {
 		auto cwd = getcwd();
 		if (cwd.length > 0) {
 			sdir.setString(cwd);
+			fsel.directory = cwd;
 		}
-		fsel.directory = sdir.toString();
 		refresh();
 		fsel.refresh();
 	}
