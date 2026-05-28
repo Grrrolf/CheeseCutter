@@ -84,7 +84,7 @@ class ConfirmationDialog : QueryDialogBase!int {
 	this(string title, Callback cb) {
 		this(title, cb, "yn", 1);
 	}
-	
+
 	override int keypress(Keyinfo key) {
 		if(key.mods & KMOD_ALT) return OK;
 		int r = input.keypress(key);
@@ -128,7 +128,7 @@ class HelpDialog : Window {
 	int numpages;
 	int page = 1;
 	int txt_x;
-	
+
 	this(Rectangle a, ContextHelp ctx) {
 		super(a);
 		pages.length = ctx.text.length;
@@ -146,7 +146,7 @@ class HelpDialog : Window {
 		screen.cprint(area.x + 2, area.y, 1, 0, format(" %s %d/%d (press SPACE for more) ", title,
 											   page,numpages));
 
-		screen.cprint(area.x + 1, area.y + 2, 1, 0, 
+		screen.cprint(area.x + 1, area.y + 2, 1, 0,
 					  std.array.replicate(" ", area.width-3));
 
 		foreach(line; pages[page-1]) {
@@ -157,7 +157,7 @@ class HelpDialog : Window {
 		for(; ypos < 36; ypos++) {
 			screen.cprint(area.x+1, ypos, 1, 0, std.array.replicate(" ", area.width-2));
 		}
-		
+
 	}
 
 	override int keypress(Keyinfo key) {
@@ -175,14 +175,14 @@ class HelpDialog : Window {
 
 class DebugDialog : Window {
 	Sequence seq;
-	
+
 	this(Sequence s) {
 		super(Rectangle(screen.width / 2 - 24,
 				   screen.height / 2 - 10,
 				   20, 55));
 		seq = s;
 	}
-	
+
 	this(Rectangle a) {
 		super(a);
 	}
@@ -224,8 +224,8 @@ class DebugDialog : Window {
 
 class AboutDialog : Window {
 	string LOGO =
-"           ___                                    ___   ___                   
-   ______/  /____________________________________\\  \\__\\  \\_______________ 
+"           ___                                    ___   ___
+   ______/  /____________________________________\\  \\__\\  \\_______________
   /  ___/     /  -__/  -__/__ --/  -__|  ___\\  \\  \\   __\\   __\\  -__\\    _\\
  /_____/__/__/_____/_____/_____/______|______\\_____\\_____\\_____\\_____\\___\\/
 \\_____\\__\\__\\_____\\_____\\_____\\______|______/_____/_____/_____/_____/___/
@@ -235,7 +235,7 @@ class AboutDialog : Window {
 	this(Rectangle a) {
 		super(a);
 	}
-  
+
 	override void update() {
 		string[] logo = std.string.splitLines(LOGO);
 		int y;
@@ -244,7 +244,7 @@ class AboutDialog : Window {
 		y = area.y + 1;
 		foreach(line; logo) {
 
-			screen.cprint(area.x + 1, y, 1, 0, 
+			screen.cprint(area.x + 1, y, 1, 0,
 						  std.array.replicate(" ", area.width-2));
 
 			screen.fprint(area.x + 1, y, "`01" ~ line.center(area.width-2));
@@ -255,7 +255,7 @@ class AboutDialog : Window {
 		screen.cprint(area.x + 1, y++,15, 0,"Released under GNU GPL".center(area.width-2));
 		screen.fprint(area.x + 1, y++," ".center(area.width-2));
 	}
-  
+
 	override int keypress(Keyinfo key) {
 		if(key.mods) return OK;
     auto k = key.key;
@@ -271,17 +271,17 @@ class FileSelector : Window {
 		int offset, pos;
 		void reset() { offset = pos = 0; }
 	}
-	
+
 	struct File {
 		string name;
 		int exists, isdir;
 	}
-	
+
 	FileSelPos fpos;
 	private File[] filelist;
 	string directory;
 	alias area filearea;
-	
+
 	this(Rectangle a) {
 		super(a);
 		directory = getcwd();
@@ -304,7 +304,7 @@ class FileSelector : Window {
 		fpos.offset = fpos.pos = 0;
 	}
 
-	override void update() { 
+	override void update() {
 		int y, i;
 		for(y = area.y, i = 0; i < area.height; y++,i++) {
 			int ofs = fpos.offset + i;
@@ -327,7 +327,7 @@ class FileSelector : Window {
 		auto ind = 1 + filelist[num].name.lastIndexOf(DIR_SEPARATOR);
 		screen.fprint(area.x+5,y,fstr("`b1  " ~ filelist[num].name[ind..$].leftJustify(area.width-3)) ~ "  ");
 	}
-	
+
 	int fileHandler() {
 		if(isDir(selected)) {
 			string s;
@@ -343,7 +343,7 @@ class FileSelector : Window {
 			}
 			else if(selected != ".") {
 				directory = cast(string)(selected.dup);
-			}   
+			}
 			reset();
 			refresh();
 			return OK;
@@ -352,7 +352,7 @@ class FileSelector : Window {
 	}
 
 	override int keypress(Keyinfo key) {
-		switch(key.raw) 
+		switch(key.raw)
 		{
 		case SDLK_UP:
 			step(-1);
@@ -377,12 +377,12 @@ class FileSelector : Window {
 		}
 		return OK;
 	}
-	
+
 	char[][] listdir(string udir) {
 		char[][] ret;
 		auto app = appender(ret);
 		foreach (DirEntry e; dirEntries(udir, SpanMode.shallow)){
-			app.put( e.name.dup );	
+			app.put( e.name.dup );
 		}
 
 		return app.data;
@@ -398,10 +398,14 @@ class FileSelector : Window {
 		int idxd, idxf;
 
 		foreach(i, d; dir) {
-			char[] first = d[0..1];
-			// skip hidden / temp files
-			if(first == "." || first == "#")
-				continue;
+			auto ind = cast(int) (1 + d.lastIndexOf(DIR_SEPARATOR));
+			char[] basename = (ind > 0 && ind < d.length) ? d[ind..$] : d;
+			if (basename.length > 0) {
+				auto first = basename[0..1];
+				// skip hidden / temp files
+				if(first == "." || first == "#")
+					continue;
+			}
 			try {
 				if(d.isDir()) {
 					dirs[idxd++] = d;
@@ -418,12 +422,12 @@ class FileSelector : Window {
 
 		dirs.length = idxd;
  		dirs.sort;
-		
+
 		files.length = idxf;
 		files.sort;
 
 		string[] all = cast(string[])(dirs ~ files);
-		
+
 		filelist.length = all.length + 2;
 		filelist[0] = File(".", true, true);
                 filelist[1] = File("..",true, true);
@@ -467,7 +471,7 @@ class FileSelector : Window {
 
 	@property string selected() { return filelist[num].name; }
 	alias selected getSelected;
-  
+
 private:
 
 	@property int num() { return fpos.offset + fpos.pos; }
@@ -491,9 +495,9 @@ class DialogString : Window {
 	}
 
 	override string toString() { return toString(false); }
-	
+
 	string toString(bool p) { return (cast(InputString)input).toString(p); }
-	
+
 	void setString(string s) {
 		(cast(InputString)input).setOutput(s);
 	}
@@ -505,7 +509,7 @@ class DialogString : Window {
 
 	override int keypress(Keyinfo key) { input.keypress(key); return OK; }
 }
-		
+
 class FileSelectorDialog : WindowSwitcher {
 	alias void delegate(string) CB;
 	const CB callback;
@@ -515,7 +519,7 @@ class FileSelectorDialog : WindowSwitcher {
 	private string header;
 	private char[][] filelist;
 	Rectangle filearea;
-	
+
 	this(Rectangle a, string h, CB cb) {
 		header = h;
 		if(a == Rectangle.init) {
@@ -526,7 +530,7 @@ class FileSelectorDialog : WindowSwitcher {
 			a = Rectangle(dialog_x, dialog_y, dialog_height, dialog_width);
 		}
 		filearea = Rectangle(a.x + 5, a.y + 2, a.height - 6, a.width - 10);
-		fsel = new FileSelector(Rectangle(a.x + 5, a.y + 2, a.height - 6, 
+		fsel = new FileSelector(Rectangle(a.x + 5, a.y + 2, a.height - 6,
 								a.width - 18));
 		sfile = new DialogString(Rectangle(a.x+3+11, a.y+a.height-2), 50);
 		sdir = new DialogString(Rectangle(a.x+3+11, a.y+a.height-3), 50);
@@ -550,27 +554,37 @@ class FileSelectorDialog : WindowSwitcher {
 	}
 
 	@property string fullname() {
-		return getcwd() ~ DIR_SEPARATOR ~ sfile.toString();
+		string d = getcwd();
+		if (d.length > 0 && d[$-1] != DIR_SEPARATOR) {
+			d ~= DIR_SEPARATOR;
+		}
+		return d ~ sfile.toString();
 	}
 
 	@property string directory() {
 		return fsel.directory;
 	}
-	
+
 	override void activate() {
+		// Update directory in dialog from current working directory
+		auto cwd = getcwd();
+		if (cwd.length > 0) {
+			sdir.setString(cwd);
+		}
+		fsel.directory = sdir.toString();
 		refresh();
 		fsel.refresh();
 	}
 
-	override void refresh() { 
+	override void refresh() {
 		update();
 	}
-	
+
 	override void update() {
 		int x,y,i;
 
 		for(y = area.y; y < area.y+area.height; y++) {
-			screen.cprint(area.x, y, 1, 0, std.array.replicate(" ",area.width)); 
+			screen.cprint(area.x, y, 1, 0, std.array.replicate(" ",area.width));
 		}
 		drawFrame(area);
 		x = area.x + 3;
@@ -578,11 +592,11 @@ class FileSelectorDialog : WindowSwitcher {
 		screen.cprint(x,area.y,1,0," " ~ header ~ " ");
 
 		screen.fprint(x,area.y+area.height-3,format("`0fDirectory: `0d%s",sdir.toString()));
-		
+
 		string f = sfile.toString();
 		int ind = cast(int) (1+f.lastIndexOf(DIR_SEPARATOR));
 		screen.fprint(x,area.y+area.height-2,format("`0f Filename: `0d%s",f[ind..$]));
-		
+
 		activeWindow.update();
 		if(activeWindow == fsel) {
 			fsel.blink();
@@ -605,8 +619,9 @@ class FileSelectorDialog : WindowSwitcher {
 		default:
 			int r = activeWindow.keypress(key);
 			if(r == WRAP){
-				int ind = cast(int) (1 + fsel.getSelected().lastIndexOf(DIR_SEPARATOR)); 
-				sfile.setString(cast(string)(fsel.getSelected()[ind..$]));
+				auto sel = fsel.getSelected();
+				int ind = cast(int) (1 + sel.lastIndexOf(DIR_SEPARATOR));
+				sfile.setString(cast(string)(sel[ind..$]));
 			}
 			break;
 		}
@@ -622,8 +637,8 @@ class FileSelectorDialog : WindowSwitcher {
 			return r;
 		}
 		else if(activeWindow == sfile) { // pressed RETURN in file dialog
-			//string filename = getcwd() ~ DIR_SEPARATOR ~ sfile.toString();
 			cb(fullname);
+			sdir.setString(getcwd());
 			return RETURN;
 		}
 		else {
@@ -637,7 +652,7 @@ class FileSelectorDialog : WindowSwitcher {
 
 class LoadFileDialog : FileSelectorDialog {
 	CB cbimport;
-	
+
 	this(Rectangle a, CB cbload, CB cbimp) {
 		super(a, "Load Song", cbload);
 		cbimport = cbimp;
@@ -676,8 +691,13 @@ class LoadFileDialog : FileSelectorDialog {
 			sdir.setString(getcwd());
 		}
 		else if(activeWindow == sfile) { // pressed RETURN in file dialog
-			string filename = getcwd() ~ DIR_SEPARATOR ~ sfile.toString();
+			string d = getcwd();
+			if (d.length > 0 && d[$-1] != DIR_SEPARATOR) {
+				d ~= DIR_SEPARATOR;
+			}
+			string filename = d ~ sfile.toString();
 			cb(filename);
+			sdir.setString(getcwd());
 		}
 	}
 }
@@ -713,8 +733,13 @@ class SaveFileDialog : FileSelectorDialog {
 			sdir.setString(getcwd());
 		}
 		else if(activeWindow == sfile) { // pressed RETURN in file dialog
-			string filename = getcwd() ~ DIR_SEPARATOR ~ sfile.toString();
+			string d = getcwd();
+			if (d.length > 0 && d[$-1] != DIR_SEPARATOR) {
+				d ~= DIR_SEPARATOR;
+			}
+			string filename = d ~ sfile.toString();
 			processFileCallback(filename);
+			sdir.setString(getcwd());
 		}
 	}
 }
