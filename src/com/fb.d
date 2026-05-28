@@ -4,7 +4,8 @@ CheeseCutter v2 (C) Abaddon. Licensed under GNU GPL.
 
 module com.fb;
 import derelict.sdl2.sdl;
-import std.string : indexOf;
+import std.string : indexOf, toStringz, fromStringz;
+import std.stdio : writeln, stderr;
 import com.util;
 
 immutable SDL_Color[] PALETTE = [
@@ -73,14 +74,14 @@ class Video {
 		if(renderer !is null)
 			SDL_DestroyRenderer(renderer);
 
-    // if(texture !is null)
-    //   SDL_DestroyTexture
+    if(texture !is null)
+      SDL_DestroyTexture(texture);
 
     if(pixelFormat !is null)
       SDL_FreeFormat(pixelFormat);
 
-    if(window !is null)
-      SDL_DestroyWindow(window);
+  		if(window !is null)
+			SDL_DestroyWindow(window);
 
 	}
 
@@ -89,33 +90,39 @@ class Video {
 		height = requestedHeight;
 		useFullscreen = false;
 
-    import std.string, std.stdio;
+	    // Create main window
+	    window = SDL_CreateWindow("CheeseCutter 2.10".toStringz, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, cast(SDL_WindowFlags)
+	                              SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+	                              );
 
-    window = SDL_CreateWindow("CheeseCutter 2.10", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, cast(SDL_WindowFlags)
-                              SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-                              );
+	    if (window is null) {
+	      stderr.writeln("SDL_CreateWindow failed: ", SDL_GetError().fromStringz);
+	      return false;
+	    }
 
-    if (window is null) {
-      return false;
-    }
+	    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	    if (renderer is null) {
+	      stderr.writeln("SDL_CreateRenderer failed: ", SDL_GetError().fromStringz);
+	      return false;
+	    }
 
-    if (renderer is null) {
-      return false;
-    }
+	    texture = SDL_CreateTexture(renderer, SDL_GetWindowPixelFormat(window),
+	                                SDL_TEXTUREACCESS_TARGET, 800, 600);
 
-    texture = SDL_CreateTexture(renderer, SDL_GetWindowPixelFormat(window),
-                                SDL_TEXTUREACCESS_TARGET, 800, 600);
-
-    if (texture is null) {
-      return false;
-    }
+	    if (texture is null) {
+	      stderr.writeln("SDL_CreateTexture failed: ", SDL_GetError().fromStringz);
+	      return false;
+	    }
 
     SDL_SetRenderTarget(renderer, null);
 
-    auto formatEnum = SDL_GetWindowPixelFormat(window);
-    pixelFormat = SDL_AllocFormat(formatEnum);
+	    auto formatEnum = SDL_GetWindowPixelFormat(window);
+	    pixelFormat = SDL_AllocFormat(formatEnum);
+	    if (pixelFormat is null) {
+	      stderr.writeln("SDL_AllocFormat failed: ", SDL_GetError().fromStringz);
+	      return false;
+	    }
 
     calcAspect();
     screen.refresh();

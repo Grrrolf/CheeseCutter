@@ -4,7 +4,28 @@
 
 # Standalone files and editor backups
 *.o
+*.obj
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
 *.temp.dmg
+CheeseCutter_*.dmg
+build/pack.temp.dmg
 *~
 src/*~
 src/*/*~
+
+# macOS & IDE
+.DS_Store
+.idea/
+.junie/
+*.dSYM/
+
+# Generated binaries
+src/c64/player.bin
+
+# Logs & swaps
+*.log
+*.swp

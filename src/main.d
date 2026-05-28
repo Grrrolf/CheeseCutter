@@ -176,10 +176,16 @@ int main(char[][] args) {
 		try {
 			string home = environment.get("HOME", "");
 			string cwd = getcwd();
-			// Redirect to home dir when launched from Finder/bundle (CWD is "/" or
-			// inside the .app bundle or any path not under the user's home directory)
-			if (home.length > 0 && exists(home) && isDir(home) &&
-				!cwd.startsWith(home)) {
+			// Only redirect to HOME when truly launched from Finder:
+			// - CWD is "/" (typical Finder launch)
+			// - or process receives a "-psn_*" argument (Finder assigns a process serial number)
+			// When launched from a terminal — even inside an .app bundle — preserve CWD.
+			bool hasPsnArg = false;
+			foreach (a; args[1..$]) {
+				if (a.startsWith("-psn")) { hasPsnArg = true; break; }
+			}
+			bool launchedFromFinder = (cwd == "/") || hasPsnArg;
+			if (launchedFromFinder && home.length > 0 && exists(home) && isDir(home)) {
 				chdir(home);
 			}
 		} catch (Exception e) {
