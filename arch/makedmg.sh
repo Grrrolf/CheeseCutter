@@ -31,15 +31,15 @@ echo '
            set current view of container window to icon view
            set toolbar visible of container window to false
            set statusbar visible of container window to false
-           set the bounds of container window to {400, 100, 1052, 430}
+           set the bounds of container window to {400, 100, 1052, 450}
            set theViewOptions to the icon view options of container window
            set arrangement of theViewOptions to not arranged
            set icon size of theViewOptions to 72
            set background picture of theViewOptions to file ".background:'${backgroundPictureName}'"
            delay 1
-	         set position of item "'${applicationName}'" of container window to {140, 240}
-           set position of item "tunes" of container window to {326, 240}
-           set position of item "Applications" of container window to {512, 240}
+	         set position of item "'${applicationName}'" of container window to {140, 205}
+           set position of item "tunes" of container window to {326, 205}
+           set position of item "Applications" of container window to {512, 205}
            update without registering applications
            close
            open
