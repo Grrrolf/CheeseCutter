@@ -18,6 +18,27 @@ void translate(ref Keyinfo key) {
 }
 
 void translate_super(ref Keyinfo key) {
+	version(OSX) {
+		if(key.mods & KMOD_ALT) {
+			switch(key.key) {
+			case SDLK_F1:
+			case SDLK_F2:
+			case SDLK_F3:
+			case SDLK_F4:
+			case SDLK_F5:
+			case SDLK_F6:
+			case SDLK_F7:
+			case SDLK_F8:
+			case SDLK_F9:
+			case SDLK_F10:
+			case SDLK_F11:
+				key.mods |= KMOD_CTRL;
+				key.mods &= ~KMOD_ALT;
+				break;
+			default: break;
+			}
+		}
+	}
 	if(key.mods & KMOD_GUI) {
         switch(key.key) {
         case SDLK_1: key.key = SDLK_KP_1; break;
@@ -49,7 +70,7 @@ void translate_super(ref Keyinfo key) {
             key.mods |= KMOD_CTRL | KMOD_SHIFT;
             break;
         }
-		key.mods ^= KMOD_GUI; // meta off
+		key.mods &= ~KMOD_GUI; // meta off
     }
 }
 
