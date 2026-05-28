@@ -167,8 +167,8 @@ class HelpDialog : Window {
 			k == SDLK_RIGHT ||
 			k == SDLK_PAGEDOWN)
 			if(page++ >= numpages) page = 1;
-		if(key.unicode == SDLK_RETURN ||
-			key.unicode == SDLK_ESCAPE) return RETURN;
+		if(k == SDLK_RETURN ||
+			k == SDLK_ESCAPE) return RETURN;
 		return OK;
 	}
 }
