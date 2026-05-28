@@ -169,6 +169,21 @@ int main(char[][] args) {
 	string filename;
 	bool fnDefined = false;
 
+	version(OSX) {
+		import std.process : environment;
+		import std.file : exists, isDir, chdir, getcwd;
+		try {
+			if (getcwd() == "/") {
+				string home = environment.get("HOME", "");
+				if (home.length > 0 && exists(home) && isDir(home)) {
+					chdir(home);
+				}
+			}
+		} catch (Exception e) {
+			// Fail-safe fallback to prevent startup crash if HOME is inaccessible
+		}
+	}
+
   // DerelictSDL2.load();
 	
 	scope(exit) {
