@@ -58,6 +58,11 @@ jobs:
       - name: Install dependencies
         run: |
           choco install make
+      - name: Check environment
+        run: |
+          ldc2 --version
+          clang --version
+          make --version
       - name: Build
         shell: bash
         run: |
