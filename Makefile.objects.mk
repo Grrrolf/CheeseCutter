@@ -10,6 +10,7 @@ OBJS= \
 	src/com/fb.o \
 	src/com/cpu.o \
 	src/com/kbd.o \
+	src/com/config.o \
 	src/com/session.o \
 	src/com/util.o \
 	src/main.o \
@@ -48,7 +49,7 @@ CXX_SRCS = src/audio/resid/residctrl.cpp \
 	src/resid-fp/sidfp.cpp \
 	src/resid-fp/versionfp.cpp \
 	src/resid-fp/voicefp.cpp \
-	src/resid-fp/wavefp.cpp 
+	src/resid-fp/wavefp.cpp
 
 CXX_OBJS = $(CXX_SRCS:.cpp=.o)
 
@@ -75,6 +76,7 @@ UTILOBJS = src/ct2util.o \
 	src/ct/base.o \
 	src/com/cpu.o \
 	src/com/util.o \
+	src/com/config.o \
 	src/ct/purge.o \
 	src/ct/dump.o \
 	src/ct/build.o \
