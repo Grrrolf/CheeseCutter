@@ -13,12 +13,6 @@ alias char* PetString;
 //private auto regexFn = regex("[^a-zA-Z0-9_\\-\\.]");
 
 
-version(Windows) {
-	enum char DIR_SEPARATOR = '\\';
-}
-else {
-	enum char DIR_SEPARATOR = '/';
-}
 
 string versionInfo() {
 	version(DEV)

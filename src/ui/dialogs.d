@@ -7,6 +7,7 @@ import derelict.sdl2.sdl;
 import main;
 import com.fb;
 import com.util;
+import com.config;
 import com.session;
 private import ct.base;
 import ui.help;
