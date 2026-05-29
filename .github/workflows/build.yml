@@ -23,6 +23,11 @@ jobs:
         run: make all
       - name: Test
         run: make test
+      - name: Upload player.bin
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-bin
+          path: src/c64/player.bin
 
   build-macos:
     runs-on: macos-latest
@@ -48,9 +53,15 @@ jobs:
           path: dist/*.dmg
 
   build-windows:
+    needs: build-linux
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download player.bin
+        uses: actions/download-artifact@v4
+        with:
+          name: player-bin
+          path: src/c64
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
       - name: Install D compiler
@@ -61,17 +72,7 @@ jobs:
         shell: bash
         run: |
           chmod +x arch/build-windows.sh
-          ./arch/build-windows.sh > build.log 2>&1 || true
-      - name: Show Build Log
-        shell: bash
-        run: cat build.log
-      - name: Verify Build
-        shell: bash
-        run: |
-          if [ ! -f dist/ccutter.exe ]; then
-            echo "ccutter.exe not found!"
-            exit 1
-          fi
+          ./arch/build-windows.sh
       - name: Test
         shell: bash
         run: |
