@@ -63,7 +63,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          mkdir -p build/src/audio/resid build/src/resid build/src/resid-fp build/src/asm build/src/ct build/src/com build/src/ui build/src/seq build/src/derelict/sdl2/internal dist
+          mkdir -p build/src/audio/resid build/src/audio build/src/resid build/src/resid-fp build/src/asm build/src/ct build/src/com build/src/ui build/src/seq build/src/derelict/sdl2/internal dist
           make -f Makefile.win32 all
       - name: Test
         shell: bash
