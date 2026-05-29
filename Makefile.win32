@@ -5,6 +5,7 @@ DC = ldc2
 CC = clang
 CXX = clang++
 EXE = .exe
+OBJ = .obj
 
 BUILD_DIR = build
 DIST_DIR = dist
@@ -13,15 +14,16 @@ DIST_DIR = dist
 DFLAGS = -I./src -J./src/c64 -J./src/font -O
 CFLAGS = -O2 -I./src
 CXXFLAGS = -O2 -I./src
-# Link against standard C++ lib if needed, though ldc2 usually handles it
+# Link against standard C++ lib if needed
 DLIBS =
 
 include Makefile.objects.mk
 
-BUILD_OBJS = $(addprefix $(BUILD_DIR)/, $(OBJS))
-BUILD_CXX_OBJS = $(addprefix $(BUILD_DIR)/, $(CXX_OBJS))
-BUILD_C_OBJS = $(addprefix $(BUILD_DIR)/, $(C_OBJS))
-BUILD_UTILOBJS = $(addprefix $(BUILD_DIR)/, $(UTILOBJS))
+# Map .o to .obj for Windows
+WIN_OBJS = $(addprefix $(BUILD_DIR)/, $(subst .o,$(OBJ),$(OBJS)))
+WIN_CXX_OBJS = $(addprefix $(BUILD_DIR)/, $(subst .o,$(OBJ),$(CXX_OBJS)))
+WIN_C_OBJS = $(addprefix $(BUILD_DIR)/, $(subst .o,$(OBJ),$(C_OBJS)))
+WIN_UTILOBJS = $(addprefix $(BUILD_DIR)/, $(subst .o,$(OBJ),$(UTILOBJS)))
 
 .PHONY: all clean dclean test help
 
@@ -32,27 +34,27 @@ help:
 	@echo "  clean        - Remove build objects"
 	@echo "  dclean       - Remove build and dist directories"
 
-$(BUILD_DIR)/%.o: %.d
-	@mkdir -p $(dir $@)
+$(BUILD_DIR)/%$(OBJ): %.d
+	@mkdir -p $(@D)
 	$(DC) $(DFLAGS) -c -of=$@ $<
 
-$(BUILD_DIR)/%.o: %.c
-	@mkdir -p $(dir $@)
+$(BUILD_DIR)/%$(OBJ): %.c
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(BUILD_DIR)/%.o: %.cpp
-	@mkdir -p $(dir $@)
+$(BUILD_DIR)/%$(OBJ): %.cpp
+	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(DIST_DIR)/ccutter$(EXE) $(DIST_DIR)/ct2util$(EXE)
 
-$(DIST_DIR)/ccutter$(EXE): $(BUILD_OBJS) $(BUILD_CXX_OBJS)
+$(DIST_DIR)/ccutter$(EXE): $(WIN_OBJS) $(WIN_CXX_OBJS)
 	@mkdir -p $(DIST_DIR)
-	$(DC) -of=$@ $(BUILD_OBJS) $(BUILD_CXX_OBJS) $(DLIBS)
+	$(DC) -of=$@ $(WIN_OBJS) $(WIN_CXX_OBJS) $(DLIBS)
 
-$(DIST_DIR)/ct2util$(EXE): $(BUILD_UTILOBJS)
+$(DIST_DIR)/ct2util$(EXE): $(WIN_UTILOBJS)
 	@mkdir -p $(DIST_DIR)
-	$(DC) -of=$@ $(BUILD_UTILOBJS)
+	$(DC) -of=$@ $(WIN_UTILOBJS)
 
 test: all
 	@echo "Running smoke tests..."
