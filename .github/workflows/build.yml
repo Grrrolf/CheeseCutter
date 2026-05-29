@@ -57,18 +57,16 @@ jobs:
         uses: dlang-community/setup-dlang@v1
         with:
           compiler: ldc-latest
-      - name: Install dependencies
-        run: |
-          choco install make
       - name: Build
         shell: bash
         run: |
-          mkdir -p build/src/audio/resid build/src/audio build/src/resid build/src/resid-fp build/src/asm build/src/ct build/src/com build/src/ui build/src/seq build/src/derelict/sdl2/internal dist
-          make -f Makefile.win32 all
+          chmod +x arch/build-windows.sh
+          ./arch/build-windows.sh
       - name: Test
         shell: bash
         run: |
-          make -f Makefile.win32 test
+          dist/ccutter.exe -h > /dev/null
+          dist/ct2util.exe > /dev/null
       - name: Upload Binaries
         uses: actions/upload-artifact@v4
         with:
