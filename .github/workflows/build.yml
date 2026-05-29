@@ -51,6 +51,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Install D compiler
         uses: dlang-community/setup-dlang@v1
         with:
@@ -58,15 +60,10 @@ jobs:
       - name: Install dependencies
         run: |
           choco install make
-      - name: Check environment
-        run: |
-          ldc2 --version
-          clang --version
-          make --version
       - name: Build
         shell: bash
         run: |
-          make -f Makefile.win32 all > build.log 2>&1 || (cat build.log && exit 1)
+          make -f Makefile.win32 all
       - name: Test
         shell: bash
         run: |

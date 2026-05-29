@@ -2,8 +2,8 @@
 # Re-created for modern ldc2/clang build on Windows
 
 DC = ldc2
-CC = clang
-CXX = clang++
+CC = cl
+CXX = cl
 EXE = .exe
 OBJ = .obj
 
@@ -12,8 +12,8 @@ DIST_DIR = dist
 
 # Using dynamic loading for SDL2 on Windows (no -d-version=DerelictSDL2_Static)
 DFLAGS = -I./src -J./src/c64 -J./src/font -O
-CFLAGS = -O2 -I./src
-CXXFLAGS = -O2 -I./src
+CFLAGS = /nologo /O2 /I./src /c /Fo$@
+CXXFLAGS = /nologo /O2 /I./src /c /EHsc /Fo$@
 # Link against standard C++ lib if needed
 DLIBS =
 
