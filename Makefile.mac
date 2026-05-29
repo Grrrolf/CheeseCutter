@@ -1,34 +1,21 @@
 #LIBS=/opt/ldc/build/lib/libphobos-ldc.a /opt/ldc/build/lib/libdruntime-ldc.a -lstdc++
 #LIBS=/opt/ldc2/lib/libphobos-ldc.a /opt/ldc2/lib/libdruntime-ldc.a -lstdc++
-ifneq ($(wildcard /opt/homebrew/lib/libphobos2-ldc.a),)
-LIBS=/opt/homebrew/lib/libphobos2-ldc.a /opt/homebrew/lib/libdruntime-ldc.a -lstdc++ -lsdl2
-else ifneq ($(wildcard /opt/local/lib/libphobos2-ldc.a),)
-LIBS=/opt/local/lib/libphobos2-ldc.a /opt/local/lib/libdruntime-ldc.a -lstdc++ -lsdl2
+ifneq ($(wildcard /opt/homebrew/lib),)
+HOMEBREW_DIR = /opt/homebrew
+else ifneq ($(wildcard /opt/local/lib),)
+HOMEBREW_DIR = /opt/local
 else
-LIBS=/usr/local/lib/libphobos2-ldc.a /usr/local/lib/libdruntime-ldc.a -lstdc++ -lsdl2
+HOMEBREW_DIR = /usr/local
 endif
 
-ifneq ($(wildcard /opt/homebrew/lib/libSDL2-2.0.0.dylib),)
-SDL_LIB=/opt/homebrew/lib/libSDL2-2.0.0.dylib
-else ifneq ($(wildcard /opt/local/lib/libSDL2-2.0.0.dylib),)
-SDL_LIB=/opt/local/lib/libSDL2-2.0.0.dylib
-else
-SDL_LIB=/usr/local/lib/libSDL2-2.0.0.dylib
-endif
 FRAMEWORKS=-framework Foundation
 COMFLAGS= -mmacosx-version-min=11.0 -g
-ifneq ($(wildcard /opt/homebrew/lib),)
-COMFLAGS += -L/opt/homebrew/lib -I/opt/homebrew/include
-endif
-ifneq ($(wildcard /opt/local/lib),)
-COMFLAGS += -L/opt/local/lib -I/opt/local/include
-endif
 VERSION=$(shell cat Version)
-DLINK=$(COMFLAGS)
 DFLAGS=-d-version=DerelictSDL2_Static -I./src -J./src/c64 -J./src/font
-CFLAGS=$(COMFLAGS)
+CFLAGS=$(COMFLAGS) -I$(HOMEBREW_DIR)/include
 CXXFLAGS=$(CFLAGS) -I./src -O2
-LDFLAGS=-rpath,@executable_path/../Frameworks
+LDFLAGS=-rpath @executable_path/../Frameworks -L$(HOMEBREW_DIR)/lib
+DLIBS=-L-lstdc++ -L-lSDL2 -L-L$(HOMEBREW_DIR)/lib -L-rpath -L@executable_path/../Frameworks -Xcc=-mmacosx-version-min=11.0
 COMPILE.d = $(DC) $(DFLAGS) -d -O2 -c -of=$@
 DC=ldc2
 EXE=
@@ -60,13 +47,13 @@ $(BUILD_DIR)/%.o: %.c
 
 $(DIST_DIR)/$(TARGET): $(C64OBJS) $(BUILD_OBJS) $(BUILD_CXX_OBJS)
 	@mkdir -p $(DIST_DIR)
-	$(CC) $(DLINK) -Wl,$(LDFLAGS) -o $@ $(BUILD_OBJS) $(BUILD_CXX_OBJS) $(LIBS) $(FRAMEWORKS)
+	$(DC) -of=$@ $(BUILD_OBJS) $(BUILD_CXX_OBJS) $(DLIBS) -L-framework -LFoundation
 
 ct: $(C64OBJS) $(CTOBJS)
 
 $(DIST_DIR)/ct2util: $(C64OBJS) $(BUILD_UTILOBJS)
 	@mkdir -p $(DIST_DIR)
-	$(CC) $(DLINK) -Wl,$(LDFLAGS) -o $@ $(BUILD_UTILOBJS) $(LIBS)
+	$(DC) -of=$@ $(BUILD_UTILOBJS) $(DLIBS)
 
 c64: $(C64OBJS)
 
@@ -83,7 +70,7 @@ release: all
 	mkdir -p $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks
 	mkdir -p $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
 	cp -r arch/MacOS/Contents $(DIST_DIR)/CheeseCutter.app
-	cp $(SDL_LIB) $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	cp $$(find $(LDFLAGS_DIR: -L%=%) -name "libSDL2-2.0.0.dylib" | head -n 1) $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
 	cp $(DIST_DIR)/$(TARGET) $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
 	cp $(DIST_DIR)/ct2util $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
 	install_name_tool -id @rpath/libSDL2-2.0.0.dylib $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
@@ -130,7 +117,7 @@ tar:
 # --------------------------------------------------------------------------------
 
 src/c64/player.bin: src/c64/player_v4.acme
-	acme -f cbm --outfile $@ $<
+	acme -f cbm -Wno-old-for --outfile $@ $<
 
 $(BUILD_DIR)/src/ct/base.o: src/c64/player.bin
 $(BUILD_DIR)/src/ui/ui.o: $(BUILD_DIR)/src/ui/help.o
