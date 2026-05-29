@@ -31,6 +31,7 @@ cp README.md LICENSE.md ChangeLog /Volumes/"${title}"/
 ln -s /Applications /Volumes/"${title}"/Applications
 chflags hidden /Volumes/"${title}"/README.md /Volumes/"${title}"/LICENSE.md /Volumes/"${title}"/ChangeLog
 
+if [ "$GITHUB_ACTIONS" != "true" ]; then
 echo '
    tell application "Finder"
      tell disk "'${title}'"
@@ -54,6 +55,7 @@ echo '
            end tell
    end tell
 ' | osascript
+fi
 
 # Since the Finder AppleScript has closed and opened the window to write the .DS_Store,
 # we now make the files read-only on the mounted volume before detaching.

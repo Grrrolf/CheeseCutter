@@ -70,7 +70,8 @@ release: all
 	mkdir -p $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks
 	mkdir -p $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
 	cp -r arch/MacOS/Contents $(DIST_DIR)/CheeseCutter.app
-	cp $$(find $(LDFLAGS_DIR: -L%=%) -name "libSDL2-2.0.0.dylib" | head -n 1) $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	SDL_LIB_PATH=$$(find $(HOMEBREW_DIR)/lib /usr/local/lib /opt/local/lib -name "libSDL2-2.0.0.dylib" | head -n 1); \
+	if [ -f "$$SDL_LIB_PATH" ]; then cp "$$SDL_LIB_PATH" $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib; else echo "SDL2 library not found"; exit 1; fi
 	cp $(DIST_DIR)/$(TARGET) $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
 	cp $(DIST_DIR)/ct2util $(DIST_DIR)/CheeseCutter.app/Contents/MacOS
 	install_name_tool -id @rpath/libSDL2-2.0.0.dylib $(DIST_DIR)/CheeseCutter.app/Contents/Frameworks/libSDL2-2.0.0.dylib
