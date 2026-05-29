@@ -11,16 +11,20 @@ mkdir -p dist
 
 echo "Compiling C files..."
 for f in src/asm/*.c; do
+    echo "Processing $f"
     cl /nologo /O2 /Isrc /c /Fo"build/${f%.c}.obj" "$f"
 done
 
 echo "Compiling C++ files..."
 for f in src/resid/*.cpp; do
+    echo "Processing $f"
     cl /nologo /O2 /Isrc /c /EHsc /Fo"build/${f%.cpp}.obj" "$f"
 done
 for f in src/resid-fp/*.cpp; do
+    echo "Processing $f"
     cl /nologo /O2 /Isrc /c /EHsc /Fo"build/${f%.cpp}.obj" "$f"
 done
+echo "Processing src/audio/resid/residctrl.cpp"
 cl /nologo /O2 /Isrc /c /EHsc /Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
 
 echo "Compiling and Linking CheeseCutter..."
