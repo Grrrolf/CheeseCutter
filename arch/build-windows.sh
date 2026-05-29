@@ -37,9 +37,13 @@ done
 echo "Processing src/audio/resid/residctrl.cpp"
 $CXX -nologo -O2 -Isrc -c -EHsc -Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
 
+echo "Listing build objects..."
+ls -R build
+
 echo "Compiling and Linking CheeseCutter..."
 # Use -i to automatically compile imported modules (like Derelict loader)
-ldc2 -i -Isrc -Jsrc/c64 -Jsrc/font -O -of=dist/ccutter.exe src/main.d build/src/resid/*.obj build/src/resid-fp/*.obj build/src/audio/resid/residctrl.obj
+# Added -v for verbose linking
+ldc2 -v -i -Isrc -Jsrc/c64 -Jsrc/font -O -of=dist/ccutter.exe src/main.d build/src/resid/*.obj build/src/resid-fp/*.obj build/src/audio/resid/residctrl.obj
 
 echo "Compiling and Linking ct2util..."
-ldc2 -i -Isrc -Jsrc/c64 -O -of=dist/ct2util.exe src/ct2util.d build/src/asm/*.obj
+ldc2 -v -i -Isrc -Jsrc/c64 -O -of=dist/ct2util.exe src/ct2util.d build/src/asm/*.obj
