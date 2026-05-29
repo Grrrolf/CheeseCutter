@@ -20,21 +20,6 @@ import std.conv;
 import std.file;
 
 
-version(linux) {
-	const DIR_SEPARATOR = '/';
-}
-
-version(FreeBSD) {
-	const DIR_SEPARATOR = '/';
-}
-
-version(OSX) {
-	const DIR_SEPARATOR = '/';
-}
-
-version(Win32) {
-	const DIR_SEPARATOR = '\\';
-}
 
 bool initVideo() {
 	int mx = 800, my = 600;

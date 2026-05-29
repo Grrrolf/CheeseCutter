@@ -13,6 +13,13 @@ alias char* PetString;
 //private auto regexFn = regex("[^a-zA-Z0-9_\\-\\.]");
 
 
+version(Windows) {
+	const char DIR_SEPARATOR = '\\';
+}
+else {
+	const char DIR_SEPARATOR = '/';
+}
+
 string versionInfo() {
 	version(DEV)
 		return " (" ~__DATE__ ~ " git)";
@@ -76,7 +83,7 @@ void hexdump(ubyte[] buf, int rowlen, bool prrow) {
 	int c, r;
 	if(prrow)
 		writef("%02x: ", 0);
-	
+
 	foreach(b; buf) {
 		writef("%02X ", b);
 		c++;
@@ -228,11 +235,11 @@ string fnClean(string fn) {
 bool fnIsSane(string fn) {
 	return matchAll(fn,regexFn).empty;
 }*/
-string fnClean(string fn) 
+string fnClean(string fn)
 {
 	return tr(fn,"a-zA-Z0-9._-","_","c");
 }
-bool fnIsSane(string fn) 
+bool fnIsSane(string fn)
 {
 	return (fn == fnClean(fn));
 }
