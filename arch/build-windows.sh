@@ -20,22 +20,22 @@ echo "Compiling C files..."
 for f in src/asm/*.c; do
     obj="build/${f%.c}.obj"
     echo "Processing $f"
-    $CC /nologo /O2 /Isrc /c /Fo"$obj" "$f"
+    $CC -nologo -O2 -Isrc -c -Fo"$obj" "$f"
 done
 
 echo "Compiling C++ files..."
 for f in src/resid/*.cpp; do
     obj="build/${f%.cpp}.obj"
     echo "Processing $f"
-    $CXX /nologo /O2 /Isrc /c /EHsc /Fo"$obj" "$f"
+    $CXX -nologo -O2 -Isrc -c -EHsc -Fo"$obj" "$f"
 done
 for f in src/resid-fp/*.cpp; do
     obj="build/${f%.cpp}.obj"
     echo "Processing $f"
-    $CXX /nologo /O2 /Isrc /c /EHsc /Fo"$obj" "$f"
+    $CXX -nologo -O2 -Isrc -c -EHsc -Fo"$obj" "$f"
 done
 echo "Processing src/audio/resid/residctrl.cpp"
-$CXX /nologo /O2 /Isrc /c /EHsc /Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
+$CXX -nologo -O2 -Isrc -c -EHsc -Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
 
 echo "Compiling and Linking CheeseCutter..."
 # Collect D files excluding ct2util related if we want to be precise, or just all D files
