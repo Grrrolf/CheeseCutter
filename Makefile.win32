@@ -40,11 +40,11 @@ $(BUILD_DIR)/%$(OBJ): %.d
 
 $(BUILD_DIR)/%$(OBJ): %.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $<
 
 $(BUILD_DIR)/%$(OBJ): %.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $<
 
 all: $(DIST_DIR)/ccutter$(EXE) $(DIST_DIR)/ct2util$(EXE)
 
