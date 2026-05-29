@@ -63,7 +63,8 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          make -f Makefile.win32 all > build.log 2>&1 || (echo "### Build Failed" >> $GITHUB_STEP_SUMMARY; echo '```' >> $GITHUB_STEP_SUMMARY; cat build.log >> $GITHUB_STEP_SUMMARY; echo '```' >> $GITHUB_STEP_SUMMARY; exit 1)
+          mkdir -p build/src/audio/resid build/src/resid build/src/resid-fp build/src/asm build/src/ct build/src/com build/src/ui build/src/seq build/src/derelict/sdl2/internal dist
+          make -f Makefile.win32 all
       - name: Test
         shell: bash
         run: |

@@ -35,25 +35,20 @@ help:
 	@echo "  dclean       - Remove build and dist directories"
 
 $(BUILD_DIR)/%$(OBJ): %.d
-	@mkdir -p $(@D)
 	$(DC) $(DFLAGS) -c -of=$@ $<
 
 $(BUILD_DIR)/%$(OBJ): %.c
-	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $<
 
 $(BUILD_DIR)/%$(OBJ): %.cpp
-	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $<
 
 all: $(DIST_DIR)/ccutter$(EXE) $(DIST_DIR)/ct2util$(EXE)
 
 $(DIST_DIR)/ccutter$(EXE): $(WIN_OBJS) $(WIN_CXX_OBJS)
-	@mkdir -p $(DIST_DIR)
 	$(DC) -of=$@ $(WIN_OBJS) $(WIN_CXX_OBJS) $(DLIBS)
 
 $(DIST_DIR)/ct2util$(EXE): $(WIN_UTILOBJS)
-	@mkdir -p $(DIST_DIR)
 	$(DC) -of=$@ $(WIN_UTILOBJS)
 
 test: all
