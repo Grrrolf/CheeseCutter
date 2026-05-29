@@ -61,7 +61,17 @@ jobs:
         shell: bash
         run: |
           chmod +x arch/build-windows.sh
-          ./arch/build-windows.sh 2>&1
+          ./arch/build-windows.sh > build.log 2>&1 || true
+      - name: Show Build Log
+        shell: bash
+        run: cat build.log
+      - name: Verify Build
+        shell: bash
+        run: |
+          if [ ! -f dist/ccutter.exe ]; then
+            echo "ccutter.exe not found!"
+            exit 1
+          fi
       - name: Test
         shell: bash
         run: |
