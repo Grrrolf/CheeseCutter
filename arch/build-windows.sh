@@ -38,10 +38,7 @@ echo "Processing src/audio/resid/residctrl.cpp"
 $CXX -nologo -O2 -Isrc -c -EHsc -Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
 
 echo "Compiling and Linking CheeseCutter..."
-# Collect D files excluding ct2util related if we want to be precise, or just all D files
-# Actually, the main targets have overlapping files.
-# Using the lists from Makefile.objects.mk but adapted for ldc2 command line.
-
+# Collect D files
 D_FILES="src/derelict/sdl2/internal/sdl_types.d \
 	src/audio/audio.d \
 	src/audio/player.d \
@@ -67,7 +64,7 @@ D_FILES="src/derelict/sdl2/internal/sdl_types.d \
 	src/seq/sequencer.d \
 	src/audio/resid/filter.d"
 
-ldc2 -Isrc -Jsrc/c64 -Jsrc/font -O -of=dist/ccutter.exe $D_FILES build/src/asm/*.obj build/src/resid/*.obj build/src/resid-fp/*.obj build/src/audio/resid/residctrl.obj
+ldc2 -Isrc -Jsrc/c64 -Jsrc/font -O -of=dist/ccutter.exe $D_FILES build/src/resid/*.obj build/src/resid-fp/*.obj build/src/audio/resid/residctrl.obj
 
 echo "Compiling and Linking ct2util..."
 UTIL_D_FILES="src/ct2util.d \
