@@ -186,7 +186,10 @@ int main(char[][] args) {
 		}
 	}
 
-  // DerelictSDL2.load();
+  version(Windows) {
+    import derelict.sdl2.sdl;
+    DerelictSDL2.load();
+  }
 
 	scope(exit) {
 		SDL_Quit();

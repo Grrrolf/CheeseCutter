@@ -38,41 +38,8 @@ echo "Processing src/audio/resid/residctrl.cpp"
 $CXX -nologo -O2 -Isrc -c -EHsc -Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
 
 echo "Compiling and Linking CheeseCutter..."
-# Collect D files
-D_FILES="src/derelict/sdl2/internal/sdl_types.d \
-	src/audio/audio.d \
-	src/audio/player.d \
-	src/audio/timer.d \
-	src/audio/callback.d \
-	src/ct/purge.d \
-	src/ct/base.d \
-	src/com/fb.d \
-	src/com/cpu.d \
-	src/com/kbd.d \
-	src/com/session.d \
-	src/com/util.d \
-	src/main.d \
-	src/ui/tables.d \
-	src/ui/dialogs.d \
-	src/ui/ui.d \
-	src/ui/input.d \
-	src/ui/help.d \
-	src/seq/seqtable.d \
-	src/seq/tracktable.d \
-	src/seq/trackmap.d \
-	src/seq/fplay.d \
-	src/seq/sequencer.d \
-	src/audio/resid/filter.d"
-
-ldc2 -Isrc -Jsrc/c64 -Jsrc/font -O -of=dist/ccutter.exe $D_FILES build/src/resid/*.obj build/src/resid-fp/*.obj build/src/audio/resid/residctrl.obj
+# Use -i to automatically compile imported modules (like Derelict loader)
+ldc2 -i -Isrc -Jsrc/c64 -Jsrc/font -O -of=dist/ccutter.exe src/main.d build/src/resid/*.obj build/src/resid-fp/*.obj build/src/audio/resid/residctrl.obj
 
 echo "Compiling and Linking ct2util..."
-UTIL_D_FILES="src/ct2util.d \
-	src/ct/base.d \
-	src/com/cpu.d \
-	src/com/util.d \
-	src/ct/purge.d \
-	src/ct/dump.d \
-	src/ct/build.d"
-
-ldc2 -Isrc -Jsrc/c64 -O -of=dist/ct2util.exe $UTIL_D_FILES build/src/asm/*.obj
+ldc2 -i -Isrc -Jsrc/c64 -O -of=dist/ct2util.exe src/ct2util.d build/src/asm/*.obj
