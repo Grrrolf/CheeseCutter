@@ -18,21 +18,30 @@ which ldc2 || echo "ldc2 not found"
 
 echo "Compiling C files..."
 for f in src/asm/*.c; do
+    obj="build/${f%.c}.obj"
+    f_win=$(echo "$f" | sed 's/\//\\/g')
+    obj_win=$(echo "$obj" | sed 's/\//\\/g')
     echo "Processing $f"
-    $CC /nologo /O2 /Isrc /c /Fo"build/${f%.c}.obj" "$f"
+    $CC /nologo /O2 /Isrc /c /Fo"$obj_win" "$f_win"
 done
 
 echo "Compiling C++ files..."
 for f in src/resid/*.cpp; do
+    obj="build/${f%.cpp}.obj"
+    f_win=$(echo "$f" | sed 's/\//\\/g')
+    obj_win=$(echo "$obj" | sed 's/\//\\/g')
     echo "Processing $f"
-    $CXX /nologo /O2 /Isrc /c /EHsc /Fo"build/${f%.cpp}.obj" "$f"
+    $CXX /nologo /O2 /Isrc /c /EHsc /Fo"$obj_win" "$f_win"
 done
 for f in src/resid-fp/*.cpp; do
+    obj="build/${f%.cpp}.obj"
+    f_win=$(echo "$f" | sed 's/\//\\/g')
+    obj_win=$(echo "$obj" | sed 's/\//\\/g')
     echo "Processing $f"
-    $CXX /nologo /O2 /Isrc /c /EHsc /Fo"build/${f%.cpp}.obj" "$f"
+    $CXX /nologo /O2 /Isrc /c /EHsc /Fo"$obj_win" "$f_win"
 done
 echo "Processing src/audio/resid/residctrl.cpp"
-$CXX /nologo /O2 /Isrc /c /EHsc /Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
+$CXX /nologo /O2 /Isrc /c /EHsc /Fo"build\src\audio\resid\residctrl.obj" src\audio\resid\residctrl.cpp
 
 echo "Compiling and Linking CheeseCutter..."
 # Collect D files excluding ct2util related if we want to be precise, or just all D files
