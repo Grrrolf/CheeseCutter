@@ -9,23 +9,30 @@ mkdir -p build/src/resid-fp
 mkdir -p build/src/audio/resid
 mkdir -p dist
 
+CC=clang-cl
+CXX=clang-cl
+
+echo "Checking compilers..."
+which $CC || echo "$CC not found"
+which ldc2 || echo "ldc2 not found"
+
 echo "Compiling C files..."
 for f in src/asm/*.c; do
     echo "Processing $f"
-    cl /nologo /O2 /Isrc /c /Fo"build/${f%.c}.obj" "$f"
+    $CC /nologo /O2 /Isrc /c /Fo"build/${f%.c}.obj" "$f"
 done
 
 echo "Compiling C++ files..."
 for f in src/resid/*.cpp; do
     echo "Processing $f"
-    cl /nologo /O2 /Isrc /c /EHsc /Fo"build/${f%.cpp}.obj" "$f"
+    $CXX /nologo /O2 /Isrc /c /EHsc /Fo"build/${f%.cpp}.obj" "$f"
 done
 for f in src/resid-fp/*.cpp; do
     echo "Processing $f"
-    cl /nologo /O2 /Isrc /c /EHsc /Fo"build/${f%.cpp}.obj" "$f"
+    $CXX /nologo /O2 /Isrc /c /EHsc /Fo"build/${f%.cpp}.obj" "$f"
 done
 echo "Processing src/audio/resid/residctrl.cpp"
-cl /nologo /O2 /Isrc /c /EHsc /Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
+$CXX /nologo /O2 /Isrc /c /EHsc /Fo"build/src/audio/resid/residctrl.obj" src/audio/resid/residctrl.cpp
 
 echo "Compiling and Linking CheeseCutter..."
 # Collect D files excluding ct2util related if we want to be precise, or just all D files
