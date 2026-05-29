@@ -33,7 +33,19 @@ DIST_FILES = \
 	$(DIST_DIR)/ct2util \
 	./tunes/*
 
-.PHONY: install release dist clean dclean tar ccutter ct2util
+.PHONY: help install release dist clean dclean tar ccutter ct2util test
+
+help:
+	@echo "Available targets:"
+	@echo "  all          - Build ccutter and ct2util (default)"
+	@echo "  ccutter      - Build ccutter"
+	@echo "  ct2util      - Build ct2util"
+	@echo "  test         - Run basic smoke tests"
+	@echo "  release      - Build release version (optimized and stripped)"
+	@echo "  dist         - Create Linux distribution tarball"
+	@echo "  dist-mac     - Create macOS distribution DMG (calls Makefile.mac)"
+	@echo "  clean        - Remove build objects"
+	@echo "  dclean       - Remove build and dist directories"
 
 $(BUILD_DIR)/%.o: %.d
 	@mkdir -p $(dir $@)
@@ -82,7 +94,16 @@ release: all
 dist:	release
 	tar --transform 's,^\.,cheesecutter-$(VERSION),' -czf $(DIST_DIR)/cheesecutter-$(VERSION)-linux-x86.tar.gz $(DIST_FILES)
 
-clean: 
+dist-mac:
+	$(MAKE) -f Makefile.mac dist
+
+test: all
+	@echo "Running smoke tests..."
+	$(DIST_DIR)/ccutter -h > /dev/null
+	$(DIST_DIR)/ct2util > /dev/null
+	@echo "Smoke tests passed!"
+
+clean:
 	rm -rf $(BUILD_DIR)
 	rm -f *~ src/*~ src/*/*~
 

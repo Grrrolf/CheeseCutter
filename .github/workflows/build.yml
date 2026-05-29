@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [ master, sdl2 ]
+  pull_request:
+    branches: [ master, sdl2 ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install D compiler
+        uses: dlang-community/setup-dlang@v1
+        with:
+          compiler: ldc-latest
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev acme
+      - name: Build
+        run: make all
+      - name: Test
+        run: make test
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install D compiler
+        uses: dlang-community/setup-dlang@v1
+        with:
+          compiler: ldc-latest
+      - name: Install dependencies
+        run: |
+          brew install sdl2 acme
+      - name: Build
+        run: make -f Makefile.mac all
+      - name: Test
+        run: make -f Makefile.mac test
+      - name: Package
+        run: make -f Makefile.mac dist
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: CheeseCutter-macOS
+          path: dist/*.dmg

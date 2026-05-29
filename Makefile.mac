@@ -16,7 +16,7 @@ else
 SDL_LIB=/usr/local/lib/libSDL2-2.0.0.dylib
 endif
 FRAMEWORKS=-framework Foundation
-COMFLAGS= -mmacosx-version-min=11.0 -g 
+COMFLAGS= -mmacosx-version-min=11.0 -g
 ifneq ($(wildcard /opt/homebrew/lib),)
 COMFLAGS += -L/opt/homebrew/lib -I/opt/homebrew/include
 endif
@@ -29,7 +29,7 @@ DFLAGS=-d-version=DerelictSDL2_Static -I./src -J./src/c64 -J./src/font
 CFLAGS=$(COMFLAGS)
 CXXFLAGS=$(CFLAGS) -I./src -O2
 LDFLAGS=-rpath,@executable_path/../Frameworks
-COMPILE.d = $(DC) $(DFLAGS) -d -O2 -c -of=$@ 
+COMPILE.d = $(DC) $(DFLAGS) -d -O2 -c -of=$@
 DC=ldc2
 EXE=
 TARGET=ccutter
@@ -44,7 +44,7 @@ BUILD_CXX_OBJS = $(addprefix $(BUILD_DIR)/, $(CXX_OBJS))
 BUILD_C_OBJS = $(addprefix $(BUILD_DIR)/, $(C_OBJS))
 BUILD_UTILOBJS = $(addprefix $(BUILD_DIR)/, $(UTILOBJS))
 
-.PHONY: install release dist clean dclean tar ccutter ct2util
+.PHONY: help install release dist clean dclean tar ccutter ct2util test
 
 $(BUILD_DIR)/%.o: %.d
 	@mkdir -p $(dir $@)
@@ -100,7 +100,24 @@ dist:	release
 	rm -rf $(DIST_DIR)/CheeseCutter_$(VERSION).dmg
 	arch/makedmg.sh
 
-clean: 
+test: all
+	@echo "Running smoke tests..."
+	$(DIST_DIR)/$(TARGET) -h > /dev/null
+	$(DIST_DIR)/ct2util > /dev/null
+	@echo "Smoke tests passed!"
+
+help:
+	@echo "Available targets (macOS):"
+	@echo "  all          - Build ccutter and ct2util"
+	@echo "  ccutter      - Build ccutter"
+	@echo "  ct2util      - Build ct2util"
+	@echo "  test         - Run basic smoke tests"
+	@echo "  release      - Build and create app bundle"
+	@echo "  dist         - Create macOS DMG"
+	@echo "  clean        - Remove build objects"
+	@echo "  dclean       - Remove build and dist directories"
+
+clean:
 	rm -rf $(BUILD_DIR)
 	rm -f *~ src/*~ src/*/*~
 
