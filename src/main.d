@@ -8,6 +8,7 @@ import com.fb;
 import com.session;
 import com.kbd;
 import com.util;
+public import com.util : DIR_SEPARATOR;
 import ct.base;
 import ui.ui;
 import ui.input;

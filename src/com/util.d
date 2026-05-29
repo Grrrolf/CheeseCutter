@@ -14,10 +14,10 @@ alias char* PetString;
 
 
 version(Windows) {
-	const char DIR_SEPARATOR = '\\';
+	enum char DIR_SEPARATOR = '\\';
 }
 else {
-	const char DIR_SEPARATOR = '/';
+	enum char DIR_SEPARATOR = '/';
 }
 
 string versionInfo() {
