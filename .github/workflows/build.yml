@@ -73,6 +73,12 @@ jobs:
         run: |
           chmod +x arch/build-windows.sh
           ./arch/build-windows.sh
+      - name: Download SDL2 DLL
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-2.30.3-win32-x64.zip -OutFile sdl2.zip
+          Expand-Archive sdl2.zip -DestinationPath sdl2
+          Copy-Item sdl2/SDL2.dll dist/
       - name: Test
         shell: bash
         run: |
@@ -84,6 +90,7 @@ jobs:
           name: CheeseCutter-Windows
           path: |
             dist/*.exe
+            dist/*.dll
             README.md
             LICENSE.md
             tunes/
