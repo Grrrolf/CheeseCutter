@@ -7,6 +7,7 @@ import derelict.sdl2.sdl;
 import com.fb;
 import com.session;
 import com.kbd;
+import com.util;
 import com.config;
 public import com.config : DIR_SEPARATOR;
 import ct.base;
