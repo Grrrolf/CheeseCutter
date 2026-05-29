@@ -48,11 +48,12 @@ bool initVideo() {
 	// SDL_EnableKeyRepeat(200, 10);
 	// SDL_EnableUNICODE(1);
 	// SDL_WM_SetCaption("CheeseCutter".toStringz(),"CheeseCutter".toStringz());
+  SDL_StartTextInput();
   return video.init();
 }
 
 void mainloop() {
-	int mods, key, unicode;
+	int mods, key, unicode, i;
 	bool quit = false;
 	SDL_Event evt;
 	while(!quit) {
@@ -78,7 +79,7 @@ void mainloop() {
 				version(OSX) {
 					if (key == SDLK_q && evt.key.keysym.mod & KMOD_GUI)
 						quit=true;
-				}	
+				}
 
 				mainui.keypress(keyinfo);
 				if(mainui.exitRequested)
@@ -129,6 +130,12 @@ void mainloop() {
       case SDL_WINDOWEVENT:
         if (evt.window.event == SDL_WINDOWEVENT_RESIZED) {
           video.resizeEvent(evt.window.data1, evt.window.data2);
+        }
+        break;
+      case SDL_TEXTINPUT:
+        for (i = 0; i < evt.text.text.length && evt.text.text[i] != 0; i++) {
+          auto keyinfo = Keyinfo(0, 0, evt.text.text[i]);
+          mainui.keypress(keyinfo);
         }
         break;
 			default:
@@ -194,11 +201,11 @@ int main(char[][] args) {
 	}
 
   // DerelictSDL2.load();
-	
+
 	scope(exit) {
 		SDL_Quit();
 	}
-	
+
 	scope(failure) {
 		if(song !is null) {
 			stderr.writefln("Crashed! Saving backup...");
@@ -260,9 +267,9 @@ int main(char[][] args) {
 				filename = cast(string)args[i].dup;
 				if(std.file.exists(filename) == 0 || std.file.isDir(filename)) {
 					throw new UserException("File not found!");
-				}		
+				}
 				fnDefined = true;
-		
+
 				break;
 			}
 			i++;
@@ -272,7 +279,7 @@ int main(char[][] args) {
 		std.stdio.stderr.writeln(e);
 		return -1;
 	}
-	
+
 	audio.player.init();
 	if (!initVideo()) {
     writeln("Video init failed: ", SDL_GetError().fromStringz);
@@ -283,11 +290,11 @@ int main(char[][] args) {
 	mainui = new UI();
 	loadFile(filename);
 	video.updateFrame();
-		
+
 	SDL_PauseAudio(0);
 	mainloop();
 	audio.audio.audio_close();
-	return 0;   
+	return 0;
 }
 
 void openFile(char* filename){
@@ -299,7 +306,7 @@ void openFile(char* filename){
 void loadFile(string filename){
 	if(filename && mainui) {
 		string dir, fn;
-		int sep = cast(int) filename.lastIndexOf(DIR_SEPARATOR); 
+		int sep = cast(int) filename.lastIndexOf(DIR_SEPARATOR);
 		fn = filename[sep + 1..$];
 		if(sep >= 0)
 			dir = filename[0 .. sep];
