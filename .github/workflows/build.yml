@@ -46,3 +46,32 @@ jobs:
         with:
           name: CheeseCutter-macOS
           path: dist/*.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install D compiler
+        uses: dlang-community/setup-dlang@v1
+        with:
+          compiler: ldc-latest
+      - name: Install dependencies
+        run: |
+          choco install make
+      - name: Build
+        shell: bash
+        run: |
+          make -f Makefile.win32 all
+      - name: Test
+        shell: bash
+        run: |
+          make -f Makefile.win32 test
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: CheeseCutter-Windows
+          path: |
+            dist/*.exe
+            README.md
+            LICENSE.md
+            tunes/

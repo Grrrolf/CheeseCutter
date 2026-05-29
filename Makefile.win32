@@ -1,0 +1,67 @@
+# Makefile.win32 for CheeseCutter
+# Re-created for modern ldc2/clang build on Windows
+
+DC = ldc2
+CC = clang
+CXX = clang++
+EXE = .exe
+
+BUILD_DIR = build
+DIST_DIR = dist
+
+# Using dynamic loading for SDL2 on Windows (no -d-version=DerelictSDL2_Static)
+DFLAGS = -I./src -J./src/c64 -J./src/font -O
+CFLAGS = -O2 -I./src
+CXXFLAGS = -O2 -I./src
+# Link against standard C++ lib if needed, though ldc2 usually handles it
+DLIBS =
+
+include Makefile.objects.mk
+
+BUILD_OBJS = $(addprefix $(BUILD_DIR)/, $(OBJS))
+BUILD_CXX_OBJS = $(addprefix $(BUILD_DIR)/, $(CXX_OBJS))
+BUILD_C_OBJS = $(addprefix $(BUILD_DIR)/, $(C_OBJS))
+BUILD_UTILOBJS = $(addprefix $(BUILD_DIR)/, $(UTILOBJS))
+
+.PHONY: all clean dclean test help
+
+help:
+	@echo "Available targets (Windows):"
+	@echo "  all          - Build ccutter.exe and ct2util.exe"
+	@echo "  test         - Run basic smoke tests"
+	@echo "  clean        - Remove build objects"
+	@echo "  dclean       - Remove build and dist directories"
+
+$(BUILD_DIR)/%.o: %.d
+	@mkdir -p $(dir $@)
+	$(DC) $(DFLAGS) -c -of=$@ $<
+
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+all: $(DIST_DIR)/ccutter$(EXE) $(DIST_DIR)/ct2util$(EXE)
+
+$(DIST_DIR)/ccutter$(EXE): $(BUILD_OBJS) $(BUILD_CXX_OBJS)
+	@mkdir -p $(DIST_DIR)
+	$(DC) -of=$@ $(BUILD_OBJS) $(BUILD_CXX_OBJS) $(DLIBS)
+
+$(DIST_DIR)/ct2util$(EXE): $(BUILD_UTILOBJS)
+	@mkdir -p $(DIST_DIR)
+	$(DC) -of=$@ $(BUILD_UTILOBJS)
+
+test: all
+	@echo "Running smoke tests..."
+	$(DIST_DIR)/ccutter$(EXE) -h > /dev/null
+	$(DIST_DIR)/ct2util$(EXE) > /dev/null
+	@echo "Smoke tests passed!"
+
+clean:
+	rm -rf $(BUILD_DIR)
+
+dclean: clean
+	rm -rf $(DIST_DIR)
