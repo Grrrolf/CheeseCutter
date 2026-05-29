@@ -63,7 +63,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          make -f Makefile.win32 all
+          make -f Makefile.win32 all > build.log 2>&1 || (grep -iC 10 "error" build.log; exit 1)
       - name: Test
         shell: bash
         run: |
